@@ -1,65 +1,136 @@
-import Image from "next/image";
+'use client'
+
+import { useState } from 'react'
 
 export default function Home() {
+  const [jobTitle, setJobTitle] = useState('')
+  const [education, setEducation] = useState('')
+  const [experience, setExperience] = useState('')
+  const [skills, setSkills] = useState('')
+  const [country, setCountry] = useState('UAE')
+  const [output, setOutput] = useState('')
+  const [loading, setLoading] = useState(false)
+
+  async function generateResume() {
+    setLoading(true)
+    setOutput('')
+
+    const res = await fetch('/api/generate', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        jobTitle,
+        education,
+        experience,
+        skills,
+        country,
+      }),
+    })
+
+    const data = await res.json()
+    setOutput(data.result || 'No response')
+    setLoading(false)
+  }
+
   return (
-    <div className="flex min-h-screen items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex min-h-screen w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
+    <main
+      style={{
+        minHeight: '100vh',
+        background: '#0f0f0f',
+        color: '#ffffff',
+        padding: '40px',
+        fontFamily: 'Arial',
+      }}
+    >
+      <h1 style={{ fontSize: '32px', marginBottom: '10px' }}>
+        AI Resume Generator (Students)
+      </h1>
+      <p style={{ color: '#aaa', marginBottom: '30px' }}>
+        Turn limited experience into a professional resume
+      </p>
+
+      <div style={{ maxWidth: '700px' }}>
+        <input
+          placeholder="Target Job Title (e.g. Business Intern)"
+          value={jobTitle}
+          onChange={(e) => setJobTitle(e.target.value)}
+          style={inputStyle}
         />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+
+        <input
+          placeholder="Education (e.g. BBA Student – Year 2)"
+          value={education}
+          onChange={(e) => setEducation(e.target.value)}
+          style={inputStyle}
+        />
+
+        <textarea
+          placeholder="Experience / Activities (part-time jobs, volunteering, projects)"
+          value={experience}
+          onChange={(e) => setExperience(e.target.value)}
+          style={{ ...inputStyle, height: '120px' }}
+        />
+
+        <input
+          placeholder="Skills (e.g. Excel, Communication, Teamwork)"
+          value={skills}
+          onChange={(e) => setSkills(e.target.value)}
+          style={inputStyle}
+        />
+
+        <select
+          value={country}
+          onChange={(e) => setCountry(e.target.value)}
+          style={inputStyle}
+        >
+          <option value="UAE">UAE</option>
+          <option value="Europe">Europe</option>
+          <option value="USA">USA</option>
+        </select>
+
+        <button
+          onClick={generateResume}
+          style={{
+            marginTop: '20px',
+            padding: '14px 28px',
+            fontSize: '16px',
+            cursor: 'pointer',
+            background: '#ffffff',
+            color: '#000',
+            borderRadius: '6px',
+            border: 'none',
+            fontWeight: 'bold',
+          }}
+        >
+          {loading ? 'Generating...' : 'Generate Resume'}
+        </button>
+      </div>
+
+      {output && (
+        <div
+          style={{
+            marginTop: '40px',
+            background: '#1a1a1a',
+            padding: '30px',
+            borderRadius: '8px',
+            whiteSpace: 'pre-wrap',
+            lineHeight: '1.6',
+            fontSize: '16px',
+            maxWidth: '900px',
+          }}
+        >
+          {output}
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
-  );
+      )}
+    </main>
+  )
+}
+
+const inputStyle = {
+  width: '100%',
+  padding: '14px',
+  marginBottom: '15px',
+  borderRadius: '6px',
+  border: 'none',
+  fontSize: '15px',
 }
