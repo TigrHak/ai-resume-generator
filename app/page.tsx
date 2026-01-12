@@ -1,136 +1,153 @@
 'use client'
-
 import { useState } from 'react'
 
 export default function Home() {
-  const [jobTitle, setJobTitle] = useState('')
-  const [education, setEducation] = useState('')
-  const [experience, setExperience] = useState('')
-  const [skills, setSkills] = useState('')
-  const [country, setCountry] = useState('UAE')
+  const [input, setInput] = useState('')
   const [output, setOutput] = useState('')
   const [loading, setLoading] = useState(false)
+  const [usedFree, setUsedFree] = useState(false)
 
   async function generateResume() {
+    if (usedFree) return
+
     setLoading(true)
     setOutput('')
 
     const res = await fetch('/api/generate', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        jobTitle,
-        education,
-        experience,
-        skills,
-        country,
-      }),
+      body: JSON.stringify({ input })
     })
 
     const data = await res.json()
     setOutput(data.result || 'No response')
     setLoading(false)
+    setUsedFree(true)
   }
 
   return (
     <main
       style={{
         minHeight: '100vh',
-        background: '#0f0f0f',
+        background: 'linear-gradient(135deg, #0f0f0f, #1a1a1a)',
         color: '#ffffff',
-        padding: '40px',
-        fontFamily: 'Arial',
+        padding: '60px 20px',
+        fontFamily: 'Arial'
       }}
     >
-      <h1 style={{ fontSize: '32px', marginBottom: '10px' }}>
-        AI Resume Generator (Students)
-      </h1>
-      <p style={{ color: '#aaa', marginBottom: '30px' }}>
-        Turn limited experience into a professional resume
-      </p>
+      <div
+        style={{
+          maxWidth: '900px',
+          margin: '0 auto',
+          background: '#111',
+          borderRadius: '14px',
+          padding: '40px',
+          boxShadow: '0 0 40px rgba(0,0,0,0.6)'
+        }}
+      >
+        {/* HERO */}
+        <h1 style={{ fontSize: '42px', marginBottom: '10px' }}>
+          Turn Student Experience Into a Job-Ready Resume
+        </h1>
+        <p style={{ color: '#aaa', marginBottom: '25px' }}>
+          Built for students and interns with little or no work experience.
+        </p>
 
-      <div style={{ maxWidth: '700px' }}>
-        <input
-          placeholder="Target Job Title (e.g. Business Intern)"
-          value={jobTitle}
-          onChange={(e) => setJobTitle(e.target.value)}
-          style={inputStyle}
-        />
+        <p style={{ color: '#888', marginBottom: '40px' }}>
+          Used by students applying for internships, first jobs, and university programs.
+        </p>
 
-        <input
-          placeholder="Education (e.g. BBA Student – Year 2)"
-          value={education}
-          onChange={(e) => setEducation(e.target.value)}
-          style={inputStyle}
-        />
+        {/* HOW IT WORKS */}
+        <h2 style={{ marginBottom: '10px' }}>How it works</h2>
+        <ul style={{ color: '#ccc', marginBottom: '40px' }}>
+          <li>1. Paste your part-time job, volunteering, or project experience</li>
+          <li>2. AI rewrites it into a professional resume format</li>
+          <li>3. Copy and use it instantly</li>
+        </ul>
 
+        {/* TOOL */}
+        <h2 style={{ marginBottom: '10px' }}>Paste your experience</h2>
         <textarea
-          placeholder="Experience / Activities (part-time jobs, volunteering, projects)"
-          value={experience}
-          onChange={(e) => setExperience(e.target.value)}
-          style={{ ...inputStyle, height: '120px' }}
+          placeholder="Example: Worked in a shop, helped customers, managed stock"
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          style={{
+            width: '100%',
+            height: '140px',
+            padding: '14px',
+            fontSize: '16px',
+            borderRadius: '8px',
+            border: 'none',
+            marginBottom: '20px'
+          }}
         />
-
-        <input
-          placeholder="Skills (e.g. Excel, Communication, Teamwork)"
-          value={skills}
-          onChange={(e) => setSkills(e.target.value)}
-          style={inputStyle}
-        />
-
-        <select
-          value={country}
-          onChange={(e) => setCountry(e.target.value)}
-          style={inputStyle}
-        >
-          <option value="UAE">UAE</option>
-          <option value="Europe">Europe</option>
-          <option value="USA">USA</option>
-        </select>
 
         <button
           onClick={generateResume}
+          disabled={loading || usedFree}
           style={{
-            marginTop: '20px',
             padding: '14px 28px',
             fontSize: '16px',
-            cursor: 'pointer',
-            background: '#ffffff',
-            color: '#000',
-            borderRadius: '6px',
+            cursor: usedFree ? 'not-allowed' : 'pointer',
+            background: usedFree ? '#333' : '#4f46e5',
+            color: '#fff',
             border: 'none',
-            fontWeight: 'bold',
+            borderRadius: '8px'
           }}
         >
-          {loading ? 'Generating...' : 'Generate Resume'}
+          {loading
+            ? 'Generating...'
+            : usedFree
+            ? 'Free Resume Used'
+            : 'Generate My Resume'}
         </button>
-      </div>
 
-      {output && (
-        <div
-          style={{
-            marginTop: '40px',
-            background: '#1a1a1a',
-            padding: '30px',
-            borderRadius: '8px',
-            whiteSpace: 'pre-wrap',
-            lineHeight: '1.6',
-            fontSize: '16px',
-            maxWidth: '900px',
-          }}
-        >
-          {output}
-        </div>
-      )}
+        {/* OUTPUT */}
+        {output && (
+          <div
+            style={{
+              marginTop: '40px',
+              background: '#0a0a0a',
+              padding: '20px',
+              borderRadius: '10px',
+              whiteSpace: 'pre-wrap'
+            }}
+          >
+            {output}
+          </div>
+        )}
+
+        {/* PAYWALL */}
+        {usedFree && (
+          <div
+            style={{
+              marginTop: '30px',
+              padding: '20px',
+              background: '#181818',
+              borderRadius: '10px',
+              color: '#ccc'
+            }}
+          >
+            🔒 You’ve used your free resume.  
+            <br />
+            Unlock unlimited resumes for <strong>$3</strong>.
+          </div>
+        )}
+
+        {/* EXAMPLE */}
+        <h2 style={{ marginTop: '50px' }}>Example</h2>
+        <p style={{ color: '#aaa' }}>
+          <strong>Before:</strong> Worked in a shop and helped customers.
+        </p>
+        <p style={{ color: '#aaa' }}>
+          <strong>After:</strong> Provided customer service, assisted with product selection, and supported daily store operations.
+        </p>
+
+        {/* FOOTER */}
+        <p style={{ marginTop: '60px', color: '#666' }}>
+          No sign-up required. Built specifically for students and first-time job seekers.
+        </p>
+      </div>
     </main>
   )
-}
-
-const inputStyle = {
-  width: '100%',
-  padding: '14px',
-  marginBottom: '15px',
-  borderRadius: '6px',
-  border: 'none',
-  fontSize: '15px',
 }
